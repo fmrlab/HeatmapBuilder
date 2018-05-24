@@ -31965,19 +31965,6 @@ function generateAllPointsInsideArea(point, spacing){
     return pointList;
 }
 
-/*function generateBoundingBoxes(pointList, spacing){
-    var n_points = pointList.length;
-    var boundingBox_list = [];
-    var offset = 0.02
-    spacing = spacing/2;
-    for(var i = 0; i<n_points; i++){
-        var point = pointList[i];
-        //boundingBox_list.push([bottom_point[0], left_point[1], top_point[0], right_point[1]]);
-        var bounding_box = [point[0] - offset, point[1] - offset, point[0] + offset, point[1] + offset];
-        boundingBox_list.push(bounding_box);
-    }
-    return boundingBox_list;
-}*/
 function generateBoundingBoxes(pointList, spacing){
     var n_points = pointList.length;
     var boundingBox_list = [];
