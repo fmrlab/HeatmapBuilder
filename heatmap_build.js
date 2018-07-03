@@ -6,10 +6,14 @@ var mapPoints;
 var pointBoundingBox;
 var startPoint = 0;
 var endPoint = 2;
+var gMap;
+var gDrawingManager;
+var infowindow;
 function initMap() {
 
 
     var mapCenterPoint = new google.maps.LatLng(37.7479, -84.2947);
+    infowindow = new google.maps.InfoWindow();
 
     gMap = new google.maps.Map(document.getElementById('map'), {
         zoom: 8,
@@ -17,18 +21,81 @@ function initMap() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     });
     gDirectionsService = new google.maps.DirectionsService();
+    // gDrawingManager =  new google.maps.drawing.DrawingManager({
+    //     drawingMode: google.maps.drawing.OverlayType.POLYLINE,
+    //     drawingControl: true,
+    //     drawingControlOptions: {
+    //       position: google.maps.ControlPosition.TOP_LEFT,
+    //       drawingModes: [
+    //         google.maps.drawing.OverlayType.POLYLINE
+    //       ]
+    //     },
+    //     polylineOptions: {
+    //         strokeColor: "#ff0000",
+    //         editable: true,
+    //         strokeWeight: 2
+    //     }
+    //   });
+    // gDrawingManager.setMap(gMap);
 
+    var placeService = new google.maps.places.PlacesService(gMap);
+    placeService.nearbySearch({
+        location: mapCenterPoint,
+        radius: 40000,
+        type: ['police']
+    }, callback);
+
+	//displayHeatmapLayer();
     pointsOnMap();
+}
+function callback(results, status) {
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+      for (var i = 0; i < results.length; i++) {
+        createMarker(results[i]);
+      }
+    }
+  }
 
+  function createMarker(place) {
+    var placeLoc = place.geometry.location;
+    var marker = new google.maps.Marker({
+      map: gMap,
+      position: place.geometry.location
+    });
+
+    google.maps.event.addListener(marker, 'click', function() {
+      infowindow.setContent(place.name);
+      infowindow.open(gMap, this);
+    });
+  }
+
+function displayHeatmapLayer() {
+
+
+	/**
+	* Load Heatmap Layers. Each heatmap was made with 12 KML layers.
+	* Was unable to make heatmap with single layer because it would have exceeded google limits. File would be 10MB+.
+	* See more details here: https://developers.google.com/maps/documentation/javascript/kmllayer#restrictions
+	**/
+	var heatmapLayer;
+	for(var i =0; i<11; i++){
+		//heatmapLayer = new google.maps.KmlLayer('http://www2.ca.uky.edu/forestry/LoggingEPLroutes/assets/kml-data/heatmaps/test_distance/testfireHeatmap0' + '.zip', 
+													//{preserveViewport: true});
+		heatmapLayer = new google.maps.KmlLayer('http://www2.ca.uky.edu/forestry/LoggingEPLroutes/assets/kml-data/heatmaps/test_distance/ffireHeatmap' + i + '.zip', 
+													{preserveViewport: true});
+		heatmapLayer.setMap(gMap);
+	}
+	
+	
 }
 
 function pointsOnMap() {
-    var spacing = 1;/*55.438*/
-    mapPoints = generateAllPointsInsideArea([37.6000, -84.1000], spacing);
-    pointBoundingBox = generateBoundingBoxes(mapPoints, spacing);
-    //output(pointBoundingBox);
+    var spacing = 5;/*55.438*/
+    mapPoints = generateAllPointsInsideArea([37.7479, -84.2947], spacing);
+    //pointBoundingBox = generateBoundingBoxes(mapPoints, spacing);
+    output(mapPoints);
     //var no_points = boundingBoxList.length;
-    var no_points = mapPoints.length;
+    /*var no_points = mapPoints.length;
     if (spacing > 1) {
         for (var i = 0; i < no_points; i++) {
             var cityCircle = new google.maps.Circle({
@@ -56,7 +123,7 @@ function pointsOnMap() {
             center: {lat: parseFloat(fd[i][3]), lng: parseFloat(fd[i][4])},
             radius: 500
         });
-    }
+    }*/
 
     // for(var i = 0; i<no_points; i++){
     //     var rectangle = new google.maps.Rectangle({
@@ -74,7 +141,7 @@ function pointsOnMap() {
     //         }
     //     });
     // }
-    generateHitmap();
+    //generateHitmap();
 
 }
 
